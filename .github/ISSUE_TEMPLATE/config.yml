@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question / usage help
+    url: https://github.com/BU-Neuromics/linkml-data-gen/discussions
+    about: Ask how to use the tool, or discuss ideas before filing an issue.
+  - name: LinkML documentation
+    url: https://linkml.io/linkml/
+    about: Reference for the LinkML modeling language itself.

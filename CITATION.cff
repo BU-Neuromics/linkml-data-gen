@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: linkml-data-gen
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - name: "BU Neuromics"
+repository-code: "https://github.com/BU-Neuromics/linkml-data-gen"
+abstract: >-
+  Generate realistic, stochastic, schema-valid test data from any LinkML schema.
+  Driven by linkml-runtime's SchemaView, it produces connected, referentially
+  consistent datasets for testing, demos, and fixtures, with configurable
+  sampling distributions, domain hints, and schema-scope selection.
+keywords:
+  - linkml
+  - test-data
+  - synthetic-data
+  - fixtures
+  - schema
+  - bioinformatics
+license: MIT
+version: 0.1.0
+date-released: "2026-06-26"

@@ -236,3 +236,15 @@ pytest
 The suite validates generated data against both a synthetic edge-case schema (patterns, bounds,
 mixins, inlined value objects, references) and — when present as a sibling checkout — the real
 `brainbank-hippo-schema`, across many seeds and at scale.
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, testing,
+and the PR process, and note our [Code of Conduct](CODE_OF_CONDUCT.md). Use the issue templates to
+[report a bug or request a feature](.github/ISSUE_TEMPLATE). Security issues: see
+[SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE) © BU Neuromics. If you use this in published work, citation metadata is in
+[CITATION.cff](CITATION.cff). Release notes live in [CHANGELOG.md](CHANGELOG.md).

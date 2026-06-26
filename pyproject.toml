@@ -11,6 +11,20 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "BU Neuromics" }]
 keywords = ["linkml", "test-data", "synthetic-data", "fixtures", "schema"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Testing",
+]
 dependencies = [
     "linkml>=1.8",
     "linkml-runtime>=1.8",
@@ -18,6 +32,13 @@ dependencies = [
     "rstr>=3.2",
     "pyyaml",
 ]
+
+[project.urls]
+Homepage = "https://github.com/BU-Neuromics/linkml-data-gen"
+Repository = "https://github.com/BU-Neuromics/linkml-data-gen"
+Documentation = "https://github.com/BU-Neuromics/linkml-data-gen/blob/main/docs/index.md"
+Issues = "https://github.com/BU-Neuromics/linkml-data-gen/issues"
+Changelog = "https://github.com/BU-Neuromics/linkml-data-gen/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = ["pytest>=7"]
