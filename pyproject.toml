@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkml-data-gen"
+version = "0.1.0"
+description = "Generate realistic, stochastic, schema-valid test data from any LinkML schema."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "BU Neuromics" }]
+keywords = ["linkml", "test-data", "synthetic-data", "fixtures", "schema"]
+dependencies = [
+    "linkml>=1.8",
+    "linkml-runtime>=1.8",
+    "faker>=24",
+    "rstr>=3.2",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+linkml-data-gen = "linkml_data_gen.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

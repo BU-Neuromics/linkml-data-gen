@@ -1,0 +1,91 @@
+id: https://example.org/edge
+name: edge
+description: Edge-case schema exercising patterns, bounds, mixins, and inlined dicts.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ex: https://example.org/edge/
+default_prefix: ex
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+  HasProvenance:
+    mixin: true
+    description: A mixin adding provenance fields.
+    attributes:
+      created_by:
+        description: Who created the record.
+      created_on:
+        range: datetime
+
+  Registry:
+    tree_root: true
+    description: Root container.
+    attributes:
+      widgets:
+        range: Widget
+        multivalued: true
+        inlined_as_list: true
+      teams:
+        range: Team
+        multivalued: true
+        inlined_as_list: true
+
+  Widget:
+    mixins:
+      - HasProvenance
+    description: A thing with constrained scalars and a pattern-coded id.
+    attributes:
+      widget_id:
+        identifier: true
+        range: string
+        pattern: "^WIDGET:[0-9]{4}$"
+      serial:
+        pattern: "^[A-Z]{3}-[0-9]{2,4}[a-z]$"
+        required: true
+      weight_g:
+        range: float
+        minimum_value: 0.5
+        maximum_value: 9.9
+        required: true
+      ports:
+        range: integer
+        minimum_value: 1
+        maximum_value: 8
+      status:
+        range: WidgetStatus
+        required: true
+      owner:
+        range: Team
+        description: Reference to a team (by identifier).
+      tags:
+        multivalued: true
+        required: true
+      specs:
+        range: Spec
+        multivalued: true
+        inlined_as_list: true
+
+  Spec:
+    description: An inlined, identifier-less value object (must inline).
+    attributes:
+      key:
+        required: true
+      value:
+        required: true
+
+  Team:
+    description: A referenceable entity with a unique business key.
+    attributes:
+      team_id:
+        identifier: true
+      email:
+        required: true
+
+enums:
+  WidgetStatus:
+    permissible_values:
+      active:
+      retired:
+      "in repair":
