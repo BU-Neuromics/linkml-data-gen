@@ -56,6 +56,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Emit a plain list of --class instances instead of a container/root object.",
     )
     p.add_argument(
+        "--select", nargs="*", default=None, metavar="TOKEN",
+        help="Generate only collections/classes matching these tokens. A token "
+             "matches a collection slot name, a class name, or a source module "
+             "(e.g. --select tissue). Default: everything.",
+    )
+    p.add_argument(
+        "--exclude", nargs="*", default=None, metavar="TOKEN",
+        help="Drop collections/classes matching these tokens (same matching as --select).",
+    )
+    p.add_argument(
+        "--with-dependencies", action="store_true",
+        help="Also generate collections needed to satisfy references from in-scope "
+             "data (self-contained output). Default: out-of-scope references become "
+             "valid-but-dangling id strings.",
+    )
+    p.add_argument(
         "--hints", metavar="FILE",
         help="YAML/JSON file of domain/sampling hints (distributions, choices, "
              "weights, faker providers, cardinality, population probabilities).",
@@ -91,6 +107,9 @@ def main(argv: list[str] | None = None) -> int:
         max_depth=args.max_depth,
         locale=args.locale,
         hints=hints,
+        select=args.select,
+        exclude=args.exclude,
+        with_dependencies=args.with_dependencies,
     )
 
     sv = SchemaView(args.schema)

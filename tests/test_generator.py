@@ -235,6 +235,46 @@ def test_poisson_cardinality_within_bounds():
     assert all(1 <= len(w["tags"]) <= 6 for w in data["widgets"])
 
 
+# -------------------------------------------------------------------- scope
+INVENTORY = HERE / "schemas" / "inventory.yaml"
+
+
+def _inv(**kw):
+    return DataGenerator(str(INVENTORY), GenerationConfig(seed=0, default_count=4, **kw)).generate()
+
+
+def test_scope_select_module_strict():
+    data = _inv(select=["inventory"])
+    assert set(data) == {"products"}                 # only the inventory module
+    # cross-module reference is a dangling-but-valid id (no Employee pulled in)
+    assert isinstance(data["products"][0]["managed_by"], str)
+    _assert_valid(data, INVENTORY, "Warehouse")
+
+
+def test_scope_select_with_dependencies():
+    data = _inv(select=["inventory"], with_dependencies=True)
+    assert "products" in data and "staff" in data     # Employee pulled in
+    emp_ids = {e["employee_id"] for e in data["staff"]}
+    assert data["products"][0]["managed_by"] in emp_ids  # resolves to a real one
+    _assert_valid(data, INVENTORY, "Warehouse")
+
+
+def test_scope_select_other_module():
+    data = _inv(select=["people"])
+    assert set(data) == {"staff"}                     # products excluded
+    _assert_valid(data, INVENTORY, "Warehouse")
+
+
+def test_scope_exclude_collection_name():
+    data = _inv(exclude=["staff"])
+    assert "staff" not in data and "products" in data
+
+
+def test_scope_default_includes_everything():
+    data = _inv()
+    assert {"products", "staff"} <= set(data)
+
+
 # ---------------------------------------------------------------- brainbank
 brainbank_available = BRAINBANK.exists()
 needs_bb = pytest.mark.skipif(not brainbank_available, reason="brainbank schema not present")
@@ -274,6 +314,17 @@ def test_brainbank_with_hints_validates():
             assert 21 <= dn["age_at_death"] <= 102
         if "sex" in dn:
             assert dn["sex"] in ("male", "female")
+    _assert_valid(data, BRAINBANK, "BrainBank")
+
+
+@needs_bb
+def test_brainbank_tissue_scope():
+    cfg = GenerationConfig(seed=0, default_count=5, select=["tissue"])
+    data = DataGenerator(str(BRAINBANK), cfg).generate()
+    assert set(data) <= {"samples", "processes", "containers", "locations"}
+    assert "donors" not in data and "datasets" not in data
+    # only tissue-module concrete subtypes fill the polymorphic `samples`
+    assert {s["category"] for s in data["samples"]} <= {"SolidSample", "LiquidSample"}
     _assert_valid(data, BRAINBANK, "BrainBank")
 
 

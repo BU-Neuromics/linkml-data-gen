@@ -1,0 +1,35 @@
+id: https://example.org/inventory
+name: inventory
+description: Imports a 'people' module so module-based scope selection can be tested.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ex: https://example.org/inventory/
+default_prefix: ex
+default_range: string
+imports:
+  - linkml:types
+  - people
+
+classes:
+  Warehouse:
+    tree_root: true
+    attributes:
+      products:
+        range: Product
+        multivalued: true
+        inlined_as_list: true
+      staff:
+        range: Employee
+        multivalued: true
+        inlined_as_list: true
+
+  Product:
+    description: An inventory item (inventory module).
+    attributes:
+      product_id:
+        identifier: true
+      title:
+        required: true
+      managed_by:
+        range: Employee        # cross-module reference into 'people'
+        required: true

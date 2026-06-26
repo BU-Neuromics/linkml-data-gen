@@ -1,0 +1,19 @@
+id: https://example.org/people
+name: people
+description: A separate module, imported by inventory, for module-scope tests.
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ex: https://example.org/people/
+default_prefix: ex
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+  Employee:
+    description: A person who manages products (people module).
+    attributes:
+      employee_id:
+        identifier: true
+      email:
+        required: true

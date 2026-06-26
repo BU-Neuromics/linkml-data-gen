@@ -51,6 +51,19 @@ class GenerationConfig:
     # ``linkml_data_gen.hints`` for the format.
     hints: Any = None
 
+    # Scope control. Tokens match a collection's slot name, its range class
+    # name, or that class's source module (e.g. "tissue"). ``select`` keeps only
+    # matching collections/classes (None = everything); ``exclude`` drops
+    # matching ones. Scope also restricts which concrete subtypes fill a
+    # polymorphic collection.
+    select: Optional[list] = None
+    exclude: Optional[list] = None
+
+    # When True, collections needed to satisfy references from in-scope data are
+    # generated too (self-contained output). When False (default), references to
+    # out-of-scope classes become valid-but-dangling id strings.
+    with_dependencies: bool = False
+
     def count_for(self, slot_name: str, class_name: Optional[str] = None) -> int:
         """Resolve the instance count for a collection, honouring overrides."""
         if slot_name in self.count_overrides:

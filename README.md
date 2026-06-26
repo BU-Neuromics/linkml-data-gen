@@ -43,6 +43,9 @@ linkml-data-gen SCHEMA [options]
       --recommended-prob P probability of filling `recommended` slots (default: 0.95)
       --optional-prob P    probability of filling other optional slots (default: 0.55)
       --max-depth N        max recursion depth for inlined nested objects (default: 6)
+      --select TOKEN ...   generate only these collections/classes/modules (see below)
+      --exclude TOKEN ...  drop these collections/classes/modules
+      --with-dependencies  pull in collections needed to satisfy in-scope references
       --hints FILE         YAML/JSON domain + sampling hints (see below)
       --validate           validate the generated output with linkml-validate
 ```
@@ -104,6 +107,36 @@ any reference is resolved, every reference points at a real instance, even when 
 reference each other cyclically. When a reference needs a specific subtype that wasn't
 pre-allocated, one is created on demand and appended to the most specific collection that can host
 it (so it still appears in the output).
+
+## Selecting part of a schema
+
+By default the whole `tree_root` is generated. To target a subset — say, only the
+**tissue** classes of a multi-module schema — use `--select` / `--exclude`. A token
+matches a collection slot name, a class name, **or a source module** (the schema
+file a class is defined in), so you can think in whichever terms fit:
+
+```bash
+# Only the tissue module's collections (samples, processes, containers, locations):
+linkml-data-gen schema/brainbank.yaml --select tissue -n 10
+
+# Everything except the dataset and analysis modules:
+linkml-data-gen schema/brainbank.yaml --exclude dataset analysis
+
+# A specific collection by name:
+linkml-data-gen schema/brainbank.yaml --select samples containers
+```
+
+Scope also restricts which concrete subtypes fill a polymorphic collection — with
+`--select tissue`, the abstract `samples` collection is filled only with
+tissue-module concretes (`SolidSample`, `LiquidSample`), not subtypes defined in
+other modules.
+
+**Cross-module references.** When in-scope data references an out-of-scope class
+(e.g. tissue's `Sample.donor → Donor` in the person module), the default is to
+emit a valid-but-dangling id string — truly "this module and nothing else"
+(still passes `linkml-validate`, which does no foreign-key checking). Pass
+`--with-dependencies` to instead pull in the minimum referenced collections so the
+dataset is self-contained and referentially complete.
 
 ## Domain hints & sampling distributions
 

@@ -48,6 +48,15 @@ class DataGenerator:
         self.hints = HintRegistry(self.config.hints)
         self._descendant_cache: dict[str, tuple[str, ...]] = {}
 
+        # Map each class to its source module name (last segment of from_schema),
+        # for module-based scope selection. Requires an unmerged SchemaView.
+        self._module_of: dict[str, str] = {}
+        for name, c in self.sv.all_classes().items():
+            fs = getattr(c, "from_schema", None)
+            self._module_of[name] = fs.rstrip("/").rsplit("/", 1)[-1] if fs else ""
+        self._select = set(self.config.select) if self.config.select else None
+        self._exclude = set(self.config.exclude) if self.config.exclude else set()
+
         # Per-run mutable state (reset in _reset_state).
         self._pool: dict[str, list[str]] = {}
         self._collections: dict[str, list[dict]] = {}
@@ -103,18 +112,22 @@ class DataGenerator:
         self._container_mode = True
         root: dict[str, Any] = {}
         coll_slots = self._collection_slots(rc)
+        selected = [s for s in coll_slots if self._collection_selected(s)]
 
-        # Map every concrete class to the most specific collection that can host
-        # it, so on-demand reference targets land somewhere they will serialize.
-        self._build_home_map(coll_slots)
+        # Lists exist for *every* collection so on-demand references never
+        # KeyError; empty ones are dropped from the final output. Home-map
+        # candidates are the selected collections unless dependencies are
+        # allowed to pull in others.
+        home_candidates = coll_slots if self.config.with_dependencies else selected
+        self._build_home_map(home_candidates)
 
         for slot in coll_slots:
             self._collections[slot.name] = []
             root[slot.name] = self._collections[slot.name]
 
-        # Phase A: allocate shells (id + type designator) for every collection
-        # *before* filling any, so references can resolve in any order.
-        for slot in coll_slots:
+        # Phase A: allocate shells (id + type designator) for every *selected*
+        # collection before filling any, so references resolve in any order.
+        for slot in selected:
             n = self.config.count_for(slot.name, slot.range)
             for _ in range(n):
                 cls = self._choose_concrete(slot.range)
@@ -293,10 +306,9 @@ class DataGenerator:
         cls = self._choose_concrete_with_home(rng)
         home = self._home_slot.get(cls)
         if home is None:
-            if pool_ids:
-                return self.fake.random_element(pool_ids)
-            # Nowhere to put it and nothing to point at: inline a minimal object.
-            return self._minimal_inline(self._choose_concrete(rng))
+            # The target's collection is out of scope (or there is none): emit a
+            # valid, dangling identifier rather than an out-of-scope object.
+            return self.values.mint_id(cls)
         _, _id = self._allocate(cls, home_slot=home)
         return _id if _id is not None else self.fake.random_element(pool_ids or [self.values.mint_id(cls)])
 
@@ -305,13 +317,39 @@ class DataGenerator:
         concretes = self._concrete_descendants(rng)
         if not concretes:
             return rng  # abstract with no concrete impl; best effort
-        return self.fake.random_element(concretes)
+        in_scope = [c for c in concretes if self._in_scope(c)]
+        return self.fake.random_element(in_scope or concretes)
 
     def _choose_concrete_with_home(self, rng: str) -> str:
         concretes = self._concrete_descendants(rng)
         homed = [c for c in concretes if self._home_slot.get(c) is not None]
-        pool = homed or concretes or [rng]
+        pool = homed or [c for c in concretes if self._in_scope(c)] or concretes or [rng]
         return self.fake.random_element(pool)
+
+    # ----------------------------------------------------------------- scope
+    def _in_scope(self, cname: str) -> bool:
+        if cname in self._exclude or self._module_of.get(cname) in self._exclude:
+            return False
+        if self._select is None:
+            return True
+        return cname in self._select or self._module_of.get(cname) in self._select
+
+    def _collection_selected(self, slot: SlotDefinition) -> bool:
+        rng = slot.range
+        # Exclusion by collection slot name, or by the range class / its module.
+        if slot.name in self._exclude:
+            return False
+        if rng and (rng in self._exclude or self._module_of.get(rng) in self._exclude):
+            return False
+        if self._select is None:
+            return True
+        # Selection: the slot name is named, or its range class (hence the family
+        # of instances it holds) matches a class/module token.
+        if slot.name in self._select:
+            return True
+        return bool(rng) and (
+            rng in self._select or self._module_of.get(rng) in self._select
+        )
 
     def _concrete_descendants(self, rng: str) -> tuple[str, ...]:
         cached = self._descendant_cache.get(rng)
