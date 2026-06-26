@@ -11,6 +11,17 @@ demos, load-testing, and fixtures. Output validates against the source schema wi
 linkml-data-gen schema/brainbank.yaml -n 10 -o data.yaml --validate
 ```
 
+## Documentation
+
+Full guides live in [`docs/`](docs/index.md):
+
+- [Getting started](docs/getting-started.md) · [CLI reference](docs/cli-reference.md) · [Python API](docs/python-api.md)
+- [How it works](docs/how-it-works.md) · [LinkML feature support](docs/linkml-feature-support.md)
+- [Domain hints & distributions](docs/hints.md) · [Selecting part of a schema](docs/scope.md)
+- [Recipes](docs/recipes.md) · [Limitations & troubleshooting](docs/limitations-and-troubleshooting.md)
+
+This README is a concise overview; the docs go deeper.
+
 ## Why
 
 Writing test fixtures by hand for a large LinkML schema is tedious and goes stale as the schema
