@@ -55,6 +55,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--list", action="store_true",
         help="Emit a plain list of --class instances instead of a container/root object.",
     )
+    p.add_argument(
+        "--hints", metavar="FILE",
+        help="YAML/JSON file of domain/sampling hints (distributions, choices, "
+             "weights, faker providers, cardinality, population probabilities).",
+    )
     p.add_argument("--seed", type=int, default=0, help="RNG seed (default: 0; use -1 for random).")
     p.add_argument("--recommended-prob", type=float, default=0.95)
     p.add_argument("--optional-prob", type=float, default=0.55)
@@ -70,6 +75,13 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
+    hints = None
+    if args.hints:
+        import yaml
+
+        with open(args.hints) as fh:
+            hints = yaml.safe_load(fh)
+
     config = GenerationConfig(
         seed=None if args.seed == -1 else args.seed,
         default_count=args.count,
@@ -78,6 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         optional_prob=args.optional_prob,
         max_depth=args.max_depth,
         locale=args.locale,
+        hints=hints,
     )
 
     sv = SchemaView(args.schema)

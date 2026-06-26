@@ -145,6 +145,96 @@ def test_explicit_root_class():
     assert "team_id" in inst and "email" in inst
 
 
+# -------------------------------------------------------------------- hints
+from linkml_data_gen.hints import FieldHint, HintRegistry  # noqa: E402
+
+EDGE_HINTS = {
+    "slots": {
+        "weight_g": {"distribution": "normal", "params": {"mean": 5, "std": 1},
+                     "minimum": 0.5, "maximum": 9.9},
+        "ports": {"choices": [1, 2, 4]},
+        "status": {"choices": ["active"]},
+        "created_by": {"const": "system", "prob": 1.0},
+        "created_on": {"date_start": "2020-01-01", "date_end": "2020-12-31", "prob": 1.0},
+    },
+    "classes": {
+        "Widget": {
+            "tags": {"cardinality": {"min": 2, "max": 2, "dist": "fixed"}},
+            "owner": {"prob": 0.0},
+        }
+    },
+}
+
+
+def _hinted(seed=0, count=15):
+    cfg = GenerationConfig(seed=seed, default_count=count, hints=EDGE_HINTS)
+    return DataGenerator(str(EDGE), cfg).generate()
+
+
+def test_hints_preserve_validity():
+    _assert_valid(_hinted(), EDGE, "Registry")
+
+
+def test_hint_const_and_choices_and_enum():
+    data = _hinted(seed=1)
+    for w in data["widgets"]:
+        assert w["status"] == "active"               # enum choices
+        if "ports" in w:
+            assert w["ports"] in (1, 2, 4)            # scalar choices
+        if "created_by" in w:
+            assert w["created_by"] == "system"        # const
+        assert w["created_on"].startswith("2020")     # date window
+
+
+def test_hint_distribution_bounds_and_mean():
+    data = _hinted(seed=2, count=60)
+    weights = [w["weight_g"] for w in data["widgets"]]
+    assert all(0.5 <= x <= 9.9 for x in weights)
+    assert 4.0 <= (sum(weights) / len(weights)) <= 6.0  # ~Normal(5,1)
+
+
+def test_hint_cardinality_fixed():
+    data = _hinted(seed=3)
+    assert all(len(w["tags"]) == 2 for w in data["widgets"])
+
+
+def test_hint_population_probability_zero():
+    data = _hinted(seed=4, count=20)
+    assert all("owner" not in w for w in data["widgets"])
+
+
+def test_hints_are_deterministic():
+    assert _hinted(seed=7) == _hinted(seed=7)
+
+
+def test_hint_registry_precedence():
+    reg = HintRegistry({
+        "types": {"float": {"minimum": 0, "maximum": 1}},
+        "slots": {"weight_g": {"minimum": 5}},
+        "classes": {"Widget": {"weight_g": {"maximum": 50}}},
+    })
+    h = reg.for_slot("Widget", "weight_g", "float")
+    assert h.minimum == 5     # slot overrides type
+    assert h.maximum == 50    # class.slot overrides type
+    # A slot with only the type-level hint still sees it.
+    h2 = reg.for_slot("Other", "misc", "float")
+    assert h2.minimum == 0 and h2.maximum == 1
+
+
+def test_field_hint_dict_choices_to_weights():
+    h = FieldHint.from_dict({"choices": {"a": 3, "b": 1}})
+    assert h.choices == ["a", "b"]
+    assert h.weights == [3, 1]
+
+
+def test_poisson_cardinality_within_bounds():
+    cfg = GenerationConfig(seed=5, default_count=40, hints={
+        "classes": {"Widget": {"tags": {"cardinality": {"min": 1, "max": 6,
+                                                         "dist": "poisson", "lam": 2}}}}})
+    data = DataGenerator(str(EDGE), cfg).generate()
+    assert all(1 <= len(w["tags"]) <= 6 for w in data["widgets"])
+
+
 # ---------------------------------------------------------------- brainbank
 brainbank_available = BRAINBANK.exists()
 needs_bb = pytest.mark.skipif(not brainbank_available, reason="brainbank schema not present")
@@ -166,6 +256,24 @@ def test_brainbank_scales():
     data = gen.generate()
     assert len(data["donors"]) == 50
     assert len(data["samples"]) >= 200  # may grow via on-demand references
+    _assert_valid(data, BRAINBANK, "BrainBank")
+
+
+@needs_bb
+def test_brainbank_with_hints_validates():
+    hints = {
+        "slots": {"sex": {"choices": {"male": 55, "female": 45}}},
+        "classes": {"Donor": {"age_at_death": {"distribution": "normal",
+                                               "params": {"mean": 68, "std": 12},
+                                               "minimum": 21, "maximum": 102}}},
+    }
+    cfg = GenerationConfig(seed=2, default_count=6, hints=hints)
+    data = DataGenerator(str(BRAINBANK), cfg).generate()
+    for dn in data["donors"]:
+        if "age_at_death" in dn:
+            assert 21 <= dn["age_at_death"] <= 102
+        if "sex" in dn:
+            assert dn["sex"] in ("male", "female")
     _assert_valid(data, BRAINBANK, "BrainBank")
 
 

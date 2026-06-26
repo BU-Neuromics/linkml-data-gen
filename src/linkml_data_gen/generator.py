@@ -27,6 +27,7 @@ from linkml_runtime import SchemaView
 from linkml_runtime.linkml_model.meta import ClassDefinition, SlotDefinition
 
 from .config import GenerationConfig
+from .hints import HintRegistry
 from .values import ValueFactory
 
 
@@ -44,6 +45,7 @@ class DataGenerator:
             # the Faker.seed() classmethod, which mutates global shared state.
             self.fake.seed_instance(self.config.seed)
         self.values = ValueFactory(self.fake, seed=self.config.seed)
+        self.hints = HintRegistry(self.config.hints)
         self._descendant_cache: dict[str, tuple[str, ...]] = {}
 
         # Per-run mutable state (reset in _reset_state).
@@ -125,8 +127,8 @@ class DataGenerator:
             if self._is_designates_type(slot):
                 root[slot.name] = rc
                 continue
-            if self._should_populate(slot):
-                val = self._gen_slot_value(slot, depth=0)
+            if self._should_populate(slot, rc):
+                val = self._gen_slot_value(slot, 0, rc)
                 if val not in (None, []):
                     root[slot.name] = val
 
@@ -188,7 +190,7 @@ class DataGenerator:
             rng = slot.range or "string"
             if rng in self.sv.all_classes():
                 continue
-            val = self._gen_slot_value(slot, depth)
+            val = self._gen_slot_value(slot, depth, cls)
             if val not in (None, []):
                 shell[slot.name] = val
                 return
@@ -205,41 +207,46 @@ class DataGenerator:
                 shell[slot.name] = _id
                 self._pool.setdefault(cls, []).append(_id)
                 continue
-            if not self._should_populate(slot):
+            if not self._should_populate(slot, cls):
                 continue
-            val = self._gen_slot_value(slot, depth)
+            val = self._gen_slot_value(slot, depth, cls)
             if val not in (None, []):
                 shell[slot.name] = val
 
     # ---------------------------------------------------------------- values
-    def _gen_slot_value(self, slot: SlotDefinition, depth: int) -> Any:
+    def _gen_slot_value(self, slot: SlotDefinition, depth: int, cls: Optional[str]) -> Any:
+        hint = self.hints.for_slot(cls, slot.name, slot.range)
         if slot.multivalued:
-            lo, hi = self._cardinality(slot)
+            lo, hi = self._cardinality(slot, hint)
             # Reference slots should not repeat the same identifier; inlined
             # objects are independent and may "repeat" structurally.
             dedupe = (
                 slot.range in self.sv.all_classes() and not self.sv.is_inlined(slot)
             )
             items: list = []
-            for _ in range(self.fake.random_int(lo, hi)):
-                v = self._gen_single(slot, depth)
+            for _ in range(self.values.sample_count(
+                lo, hi, hint.cardinality_dist, hint.cardinality_lam)):
+                v = self._gen_single(slot, depth, hint)
                 if v is None:
                     continue
                 if dedupe and v in items:
                     continue
                 items.append(v)
             return items
-        return self._gen_single(slot, depth)
+        return self._gen_single(slot, depth, hint)
 
-    def _gen_single(self, slot: SlotDefinition, depth: int) -> Any:
+    def _gen_single(self, slot: SlotDefinition, depth: int, hint) -> Any:
         rng = slot.range or self.sv.schema.default_range or "string"
+        # A const/choice/faker hint can stand in even for a class-ranged slot.
         if rng in self.sv.all_enums():
-            return self.values.enum_value(self.sv.get_enum(rng))
+            return self.values.enum_value(self.sv.get_enum(rng), hint)
         if rng in self.sv.all_classes():
+            if hint.has_const or hint.choices is not None or hint.faker:
+                return self.values.from_hint(hint, "string")
             return self._gen_class_value(slot, rng, depth)
         # A (possibly derived) type: resolve to its base for generation.
         tdef = self.sv.get_type(rng) if rng in self.sv.all_types() else None
-        return self.values.scalar(slot, tdef)
+        return self.values.scalar(slot, tdef, hint=hint)
 
     def _gen_class_value(self, slot: SlotDefinition, rng: str, depth: int) -> Any:
         if self.sv.is_inlined(slot):
@@ -261,7 +268,7 @@ class DataGenerator:
             rng = slot.range or "string"
             if rng in self.sv.all_classes():
                 continue  # stop the recursion here
-            shell[slot.name] = self._gen_slot_value(slot, self.config.max_depth)
+            shell[slot.name] = self._gen_slot_value(slot, self.config.max_depth, cls)
         return shell
 
     def _reference_to(self, rng: str, depth: int) -> Any:
@@ -348,15 +355,23 @@ class DataGenerator:
                 out.append(slot)
         return out
 
-    def _should_populate(self, slot: SlotDefinition) -> bool:
+    def _should_populate(self, slot: SlotDefinition, cls: Optional[str]) -> bool:
         if slot.required:
             return True
+        hint = self.hints.for_slot(cls, slot.name, slot.range)
+        if hint.prob is not None:
+            return self.fake.random.random() < hint.prob
         p = self.config.recommended_prob if slot.recommended else self.config.optional_prob
-        return self.fake.pyfloat(min_value=0, max_value=1) < p
+        return self.fake.random.random() < p
 
-    def _cardinality(self, slot: SlotDefinition) -> tuple[int, int]:
+    def _cardinality(self, slot: SlotDefinition, hint=None) -> tuple[int, int]:
         lo = slot.minimum_cardinality
         hi = slot.maximum_cardinality
+        if hint is not None:
+            if hint.cardinality_min is not None:
+                lo = hint.cardinality_min
+            if hint.cardinality_max is not None:
+                hi = hint.cardinality_max
         if lo is None:
             lo = 1 if slot.required else self.config.multivalued_min
         if hi is None:

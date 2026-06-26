@@ -43,6 +43,7 @@ linkml-data-gen SCHEMA [options]
       --recommended-prob P probability of filling `recommended` slots (default: 0.95)
       --optional-prob P    probability of filling other optional slots (default: 0.55)
       --max-depth N        max recursion depth for inlined nested objects (default: 6)
+      --hints FILE         YAML/JSON domain + sampling hints (see below)
       --validate           validate the generated output with linkml-validate
 ```
 
@@ -104,6 +105,62 @@ reference each other cyclically. When a reference needs a specific subtype that 
 pre-allocated, one is created on demand and appended to the most specific collection that can host
 it (so it still appears in the output).
 
+## Domain hints & sampling distributions
+
+The schema fixes the *shape* of a value (type, bounds, enum) but rarely its
+*distribution* or domain meaning. A **hints** file injects that knowledge without
+touching the schema — control distributions, weighted categoricals, fixed choice
+lists, Faker providers, constants, date windows, population probability, and
+cardinality, per slot.
+
+```bash
+linkml-data-gen schema/brainbank.yaml --hints examples/brainbank-hints.yaml -n 20 --validate
+```
+
+A hints document has three selector scopes, resolved least → most specific
+(`types[range]` < `slots[name]` < `classes[Class][slot]`), so a specific rule
+overrides a general one key-by-key:
+
+```yaml
+types:                                   # defaults by range type
+  datetime: {date_start: "2018-01-01", date_end: "2024-12-31"}
+slots:                                   # by slot name (any class)
+  sex:  {choices: {male: 55, female: 43, unknown: 2}}   # weighted categorical
+  name: {faker: catch_phrase}                           # any Faker provider
+  description: {prob: 0.3}                               # populate 30% of the time
+classes:                                 # by Class.slot (most specific)
+  Donor:
+    age_at_death:
+      distribution: normal               # uniform | normal | lognormal | exponential | triangular | int
+      params: {mean: 68, std: 13}
+      minimum: 21
+      maximum: 102
+      integer: true
+    cohort:
+      cardinality: {min: 1, max: 3, dist: poisson, lam: 1.2}   # uniform | fixed | poisson
+  File:
+    size_bytes: {distribution: int, minimum: 1_000_000, maximum: 50_000_000_000}
+```
+
+Per-slot hint keys: `const`, `choices` (list, or `{value: weight}` map), `weights`,
+`faker` (+ `faker_args` / `faker_kwargs`), `pattern`, `distribution` (+ `params`,
+`minimum`, `maximum`, `integer`), `date_start` / `date_end`, `prob`, and
+`cardinality` (`{min, max, dist, lam}`). Out-of-bounds distribution draws are
+resampled, then clamped. All sampling uses the seeded RNG, so hinted runs stay
+reproducible. `prob` only affects non-required slots — required slots are always
+populated to preserve validity.
+
+The Python API takes the same document as a dict:
+
+```python
+cfg = GenerationConfig(seed=0, hints={
+    "slots": {"sex": {"choices": {"male": 55, "female": 45}}},
+    "classes": {"Donor": {"age_at_death": {"distribution": "normal",
+                                           "params": {"mean": 68, "std": 12}}}},
+})
+DataGenerator("schema/brainbank.yaml", cfg).generate()
+```
+
 ## Reproducibility
 
 Runs are fully deterministic for a fixed `seed`: the same schema + seed + config always produces
@@ -114,9 +171,10 @@ byte-identical output. (Notably, dates/datetimes are drawn from a fixed referenc
 
 These are recognised gaps, not silent ones:
 
-- **Domain semantics.** Values are realistic in *shape* but not in *meaning* — an `age_at_death`
-  may be any number within its declared bounds. Add `minimum_value`/`maximum_value`/`pattern` to the
-  schema to constrain them.
+- **Domain semantics.** Without hints, values are realistic in *shape* but not *meaning* — an
+  `age_at_death` may be any number within its declared bounds. Use a [hints file](#domain-hints--sampling-distributions)
+  (or add `minimum_value`/`maximum_value`/`pattern` to the schema) to give values realistic
+  distributions and domain meaning.
 - **Cross-slot rules.** `rules`, `classification_rules`, `equals_expression`, boolean slot
   expressions (`any_of`/`all_of`/`none_of`), and `unique_keys` beyond identifiers are not enforced.
 - **Referential integrity in `--list` mode.** A flat list has no container to hold referenced

@@ -1,0 +1,41 @@
+# Domain + sampling hints for the brainbank schema.
+# Apply with:  linkml-data-gen schema/brainbank.yaml --hints examples/brainbank-hints.yaml
+
+# Defaults keyed by range type.
+types:
+  date:        {date_start: "2005-01-01", date_end: "2024-12-31"}
+  datetime:    {date_start: "2018-01-01", date_end: "2024-12-31"}
+
+# Defaults keyed by slot name (any class).
+slots:
+  sex:
+    choices: {male: 55, female: 43, unknown: 2}   # weighted categorical
+  name:
+    faker: catch_phrase                            # use a specific Faker provider
+  description:
+    prob: 0.3                                      # usually omit free-text notes
+
+# Most specific: Class.slot.
+classes:
+  Donor:
+    age_at_death:
+      distribution: normal
+      params: {mean: 68, std: 13}
+      minimum: 21
+      maximum: 102
+      integer: true
+    post_mortem_interval_hours:
+      distribution: lognormal
+      params: {mean: 2.6, sigma: 0.5}    # median ~13.5h, right-skewed
+      maximum: 96
+    cohort:
+      cardinality: {min: 1, max: 3, dist: poisson, lam: 1.2}
+  SequencingAssay:
+    read_length:
+      choices: [50, 75, 100, 150]
+      weights: [1, 2, 4, 8]
+  File:
+    size_bytes:
+      distribution: int
+      minimum: 1000000
+      maximum: 50000000000

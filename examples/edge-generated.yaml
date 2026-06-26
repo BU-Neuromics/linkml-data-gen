@@ -2,50 +2,40 @@ widgets:
 - widget_id: WIDGET:6048
   serial: TZI-9241x
   weight_g: 4.839
-  ports: 3
-  status: retired
-  tags:
-  - Work special total
-  - Better available
-  - Line beyond its
-- widget_id: WIDGET:6475
-  serial: VKP-1565t
-  weight_g: 0.544
-  status: active
-  owner: TM-0001
-  tags:
-  - Ball floor
-  - Your majority feeling
-  - Religious natural
-  - Data son natural
-  specs:
-  - key: ML-9342
-    value: Position
-  - key: JC-7112
-    value: Together type
-  - key: NR-8483
-    value: Stay information every manage
-  - key: FL-1591
-    value: Friend couple administration even
-  created_on: '2023-02-28T12:43:58.797476+00:00'
-- widget_id: WIDGET:8242
-  serial: RPO-4080c
-  weight_g: 2.89
+  ports: 4
   status: in repair
   owner: TM-0001
   tags:
-  - Store build before street
-  - Already against
+  - Son would mouth relate
+  created_by: Role together
+- widget_id: WIDGET:6475
+  serial: VKP-1565t
+  weight_g: 8.135
+  ports: 6
+  status: in repair
+  tags:
+  - Local tend employee
+  - Trouble behavior style
+- widget_id: WIDGET:8242
+  serial: RPO-4080c
+  weight_g: 7.143
+  status: in repair
+  tags:
+  - Develop sound central
+  - Language ball floor
   specs:
-  - key: GQ-0869
-    value: Determine positive
-  - key: DC-6208
-    value: Beyond write current grow
-  created_on: '2022-11-20T22:22:22.374264+00:00'
+  - key: JV-4841
+    value: Data son natural
+  - key: UK-7196
+    value: Face country
+  - key: EF-0947
+    value: Theory type
+  - key: HZ-8684
+    value: Support time
 teams:
 - team_id: TM-0001
-  email: meganpeterson@example.com
+  email: shannon51@example.com
 - team_id: TM-0002
-  email: carlsonscott@example.org
+  email: tuckercrystal@example.org
 - team_id: TM-0003
-  email: ruizrobert@example.net
+  email: allennelson@example.net

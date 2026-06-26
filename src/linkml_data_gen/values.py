@@ -20,6 +20,12 @@ from linkml_runtime.linkml_model.meta import (
     TypeDefinition,
 )
 
+from .hints import FieldHint
+
+# Returned by ValueFactory.from_hint when a hint shapes no value, so callers
+# can distinguish "no instruction" from a legitimately generated ``None``.
+_NO_HINT = object()
+
 # LinkML type ``base`` strings -> a coarse generation category.
 _BASE_KIND = {
     "str": "string",
@@ -93,10 +99,131 @@ class ValueFactory:
         self._id_counters[class_name] = n
         return f"{self._abbrev(class_name)}-{n:04d}"
 
+    # ----- hints -------------------------------------------------------------
+    def from_hint(self, hint: FieldHint, kind: str) -> Any:
+        """Generate a value from an explicit hint, or return ``_NO_HINT``.
+
+        Handles the value-shaping forms (const / choices / faker / pattern /
+        numeric distribution / date window). Returns the sentinel when the hint
+        carries no value-shaping instruction so the caller can fall through.
+        """
+        if hint.has_const:
+            return hint.const
+        if hint.choices is not None:
+            return self.weighted_choice(hint.choices, hint.weights)
+        if hint.faker:
+            return self.faker_value(hint)
+        if hint.pattern:
+            return self._from_pattern(hint.pattern)
+        if hint.distribution and kind in ("integer", "float"):
+            return self._sample_numeric(hint, want_int=(kind == "integer"))
+        if (hint.date_start or hint.date_end) and kind in ("date", "datetime"):
+            return self._hinted_date(hint, kind)
+        return _NO_HINT
+
+    def sample_count(self, lo: int, hi: int, dist: Optional[str], lam: Optional[float]) -> int:
+        """Sample a cardinality in ``[lo, hi]`` per the requested distribution."""
+        lo, hi = int(lo), int(hi)
+        if hi < lo:
+            lo, hi = hi, lo
+        d = (dist or "uniform").lower()
+        if d == "fixed":
+            return hi
+        if d == "poisson":
+            mean = lam if lam is not None else (lo + hi) / 2.0
+            n = self._poisson(mean)
+            return max(lo, min(hi, n))
+        return self.fake.random_int(lo, hi)
+
+    def _poisson(self, mean: float) -> int:
+        # Knuth's algorithm, using the seeded RNG for reproducibility.
+        import math
+
+        if mean <= 0:
+            return 0
+        limit = math.exp(-mean)
+        k, prod = 0, 1.0
+        while True:
+            k += 1
+            prod *= self.fake.random.random()
+            if prod <= limit:
+                return k - 1
+
+    def weighted_choice(self, choices: list, weights: Optional[list]) -> Any:
+        if weights:
+            return self.fake.random.choices(choices, weights=weights, k=1)[0]
+        return self.fake.random_element(choices)
+
+    def faker_value(self, hint: FieldHint) -> Any:
+        method = getattr(self.fake, hint.faker)
+        return method(*(hint.faker_args or []), **(hint.faker_kwargs or {}))
+
+    def _sample_numeric(self, hint: FieldHint, want_int: bool) -> Any:
+        dist = (hint.distribution or "uniform").lower()
+        p = hint.params or {}
+        rnd = self.fake.random
+        lo = hint.minimum if hint.minimum is not None else 0.0
+        hi = hint.maximum if hint.maximum is not None else 1000.0
+        v = lo
+        for _ in range(100):
+            if dist in ("normal", "gauss", "gaussian"):
+                mu = p.get("mean", p.get("mu", (lo + hi) / 2))
+                v = rnd.gauss(mu, p.get("std", p.get("sigma", 1.0)))
+            elif dist in ("lognormal", "lognorm"):
+                v = rnd.lognormvariate(p.get("mean", p.get("mu", 0.0)),
+                                       p.get("sigma", p.get("std", 1.0)))
+            elif dist in ("exponential", "expo", "exp"):
+                v = rnd.expovariate(p.get("lam", p.get("rate", 1.0)))
+            elif dist in ("triangular", "tri"):
+                v = rnd.triangular(lo, hi, p.get("mode", (lo + hi) / 2))
+            elif dist in ("int", "int_uniform", "integer"):
+                want_int = True
+                v = rnd.randint(int(lo), int(hi))
+            else:  # uniform
+                v = rnd.uniform(lo, hi)
+            in_lo = hint.minimum is None or v >= hint.minimum
+            in_hi = hint.maximum is None or v <= hint.maximum
+            if in_lo and in_hi:
+                break
+        if hint.minimum is not None:
+            v = max(v, hint.minimum)
+        if hint.maximum is not None:
+            v = min(v, hint.maximum)
+        if want_int or hint.integer:
+            return int(round(v))
+        return round(v, 3)
+
+    def _hinted_date(self, hint: FieldHint, kind: str) -> str:
+        start = self._parse_dt(hint.date_start) or self._WINDOW_START
+        end = self._parse_dt(hint.date_end) or self._WINDOW_END
+        if kind == "date":
+            return self.fake.date_between_dates(start.date(), end.date()).isoformat()
+        dt = self.fake.date_time_between_dates(start, end).replace(tzinfo=timezone.utc)
+        return dt.isoformat()
+
+    @staticmethod
+    def _parse_dt(val) -> Optional[datetime]:
+        if val is None:
+            return None
+        s = str(val).replace("Z", "+00:00")
+        try:
+            dt = datetime.fromisoformat(s)
+            return dt.replace(tzinfo=None)  # window bounds are naive
+        except ValueError:
+            try:
+                return datetime.combine(date.fromisoformat(s[:10]), datetime.min.time())
+            except ValueError:
+                return None
+
     # ----- enums -------------------------------------------------------------
-    def enum_value(self, enum: EnumDefinition) -> Optional[str]:
+    def enum_value(self, enum: EnumDefinition, hint: Optional[FieldHint] = None) -> Optional[str]:
         """Pick a permissible value, or synthesize a CURIE for a dynamic enum."""
         pvs = list(enum.permissible_values or {})
+        if hint is not None:
+            if hint.choices is not None:
+                return self.weighted_choice(hint.choices, hint.weights)
+            if hint.weights and pvs and len(hint.weights) == len(pvs):
+                return self.weighted_choice(pvs, hint.weights)
         if pvs:
             return self.fake.random_element(pvs)
         # Dynamic enum (reachable_from / matches): no static values. Build a
@@ -118,20 +245,27 @@ class ValueFactory:
         slot: SlotDefinition,
         type_def: Optional[TypeDefinition],
         kind_hint: Optional[str] = None,
+        hint: Optional[FieldHint] = None,
     ) -> Any:
         """Generate a scalar appropriate to the slot's (resolved) type."""
+        kind = kind_hint or self._kind_of(type_def)
+
+        if hint is not None and not hint.is_empty:
+            shaped = self.from_hint(hint, kind)
+            if shaped is not _NO_HINT:
+                return shaped
+
         if slot.pattern:
             return self._from_pattern(slot.pattern)
 
-        kind = kind_hint or self._kind_of(type_def)
         name = (slot.name or "").lower()
 
         if kind == "string":
             return self._string(name, slot)
         if kind == "integer":
-            return self._integer(slot)
+            return self._integer(slot, hint)
         if kind == "float":
-            return self._float(slot)
+            return self._float(slot, hint)
         if kind == "boolean":
             return self.fake.boolean()
         if kind == "date":
@@ -216,20 +350,23 @@ class ValueFactory:
             return f.bothify("??-####").upper()
         return f.word()
 
-    def _integer(self, slot: SlotDefinition) -> int:
-        lo = slot.minimum_value if slot.minimum_value is not None else 0
-        hi = slot.maximum_value if slot.maximum_value is not None else 1000
-        lo, hi = int(lo), int(hi)
-        if lo > hi:
-            lo, hi = hi, lo
-        return self.fake.random_int(lo, hi)
+    def _bounds(self, slot: SlotDefinition, hint: Optional[FieldHint], dlo, dhi):
+        lo = slot.minimum_value if slot.minimum_value is not None else dlo
+        hi = slot.maximum_value if slot.maximum_value is not None else dhi
+        if hint is not None:
+            if hint.minimum is not None:
+                lo = hint.minimum
+            if hint.maximum is not None:
+                hi = hint.maximum
+        return (hi, lo) if lo > hi else (lo, hi)
 
-    def _float(self, slot: SlotDefinition) -> float:
-        lo = float(slot.minimum_value) if slot.minimum_value is not None else 0.0
-        hi = float(slot.maximum_value) if slot.maximum_value is not None else 1000.0
-        if lo > hi:
-            lo, hi = hi, lo
-        return round(self.fake.pyfloat(min_value=lo, max_value=hi), 3)
+    def _integer(self, slot: SlotDefinition, hint: Optional[FieldHint] = None) -> int:
+        lo, hi = self._bounds(slot, hint, 0, 1000)
+        return self.fake.random_int(int(lo), int(hi))
+
+    def _float(self, slot: SlotDefinition, hint: Optional[FieldHint] = None) -> float:
+        lo, hi = self._bounds(slot, hint, 0.0, 1000.0)
+        return round(self.fake.pyfloat(min_value=float(lo), max_value=float(hi)), 3)
 
     # Fixed reference window. Using "now"/"today" would make output depend on
     # wall-clock time (datetimes drift by ~1s between calls), breaking

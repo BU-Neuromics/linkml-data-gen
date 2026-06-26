@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -45,6 +45,11 @@ class GenerationConfig:
 
     # Faker locale.
     locale: str = "en_US"
+
+    # Domain / sampling hints. Either a parsed hints document (dict with
+    # ``types`` / ``slots`` / ``classes`` keys) or a HintRegistry. See
+    # ``linkml_data_gen.hints`` for the format.
+    hints: Any = None
 
     def count_for(self, slot_name: str, class_name: Optional[str] = None) -> int:
         """Resolve the instance count for a collection, honouring overrides."""

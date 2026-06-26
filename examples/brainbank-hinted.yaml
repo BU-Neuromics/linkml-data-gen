@@ -1,0 +1,723 @@
+donors:
+- id: DNR-0001
+  category: Donor
+  person_id: FQ-6947
+  name: Multi-channeled attitude-oriented Graphic Interface
+- id: DNR-0002
+  category: Donor
+  age_at_death: 51
+  post_mortem_interval_hours: 16.859
+  person_id: BD-3525
+  species: NCBITaxon:2309
+  name: Robust systemic archive
+  description: Paper office hospital have wonder already against which continue buy
+- id: DNR-0003
+  category: Donor
+  age_at_death: 50
+  person_id: GQ-0869
+  species: NCBITaxon:1456
+  sex: male
+  cohort:
+  - CHR-0004
+  name: Exclusive empowering help-desk
+- id: DNR-0004
+  category: Donor
+  age_at_death: 82
+  person_id: VH-3022
+  species: NCBITaxon:9720
+  sex: male
+  name: Profound fault-tolerant projection
+- id: DNR-0005
+  category: Donor
+  post_mortem_interval_hours: 14.191
+  person_id: RI-1508
+  species: NCBITaxon:7594
+  name: Sharable regional capacity
+- id: DNR-0006
+  category: Donor
+  age_at_death: 58
+  post_mortem_interval_hours: 9.056
+  person_id: TR-3376
+  sex: male
+  name: Operative zero administration protocol
+samples:
+- id: MB-0001
+  category: MuscleBlock
+  format: Block
+  mass:
+    value: 929.754
+  sample_id: UT-9007
+  donor: DNR-0004
+  anatomical_site:
+  - AS-0002
+  - AS-0005
+  - AS-0006
+  - AS-0001
+  derived_from: BRN-0001
+  produced_by: STTS-0001
+  name: Operative foreground ability
+  description: Woman put partner couple part cup few
+- id: PTT-0001
+  category: Pituitary
+  format: Block
+  mass:
+    value: 819.155
+  sample_id: HJ-4285
+  donor: DNR-0003
+  container: CNT-0002
+  name: Multi-lateral non-volatile analyzer
+- id: CRB-0001
+  category: Cerebrum
+  format: Remainder
+  sample_id: LN-7658
+  donor: DNR-0004
+  container: CNT-0002
+  derived_from: MB-0001
+  name: Universal background Graphical User Interface
+- id: CSFP-0001
+  category: CSFPellet
+  format: Slab
+  mass:
+    unit: kg
+    value: 561.218
+  sample_id: DT-4173
+  donor: DNR-0002
+  derived_from: MB-0001
+  produced_by: BD-0001
+  name: Cross-platform next generation matrices
+- id: SCB-0001
+  category: SpinalCordBlock
+  format: Pellet
+  mass:
+    value: 343.963
+  sample_id: ZO-2296
+  donor: DNR-0001
+  anatomical_site:
+  - AS-0002
+  derived_from: BRN-0001
+  produced_by: DFB-0001
+  name: Programmable explicit knowledge user
+- id: BRN-0001
+  category: Brain
+  format: Remainder
+  sample_id: OQ-3615
+  donor: DNR-0005
+  container: CNT-0003
+  derived_from: SCB-0001
+  produced_by: DFB-0001
+  name: Organized web-enabled service-desk
+  description: Huge debate among way democratic chair cup her national character writer
+    work chance image
+- id: CSF-0001
+  category: CSF
+  format: Remainder
+  volume:
+    unit: ul
+  sample_id: AR-4906
+  donor: DNR-0005
+  anatomical_site:
+  - AS-0005
+  - AS-0004
+  derived_from: CSF-0001
+  produced_by: BCSF-0001
+  name: Triple-buffered mission-critical info-mediaries
+  description: Final station tough whether address senior moment buy
+- id: DR-0001
+  category: Dura
+  format: Cassette
+  mass:
+    unit: g
+  sample_id: MP-0285
+  donor: DNR-0002
+  anatomical_site:
+  - AS-0002
+  - AS-0005
+  derived_from: DR-0001
+  produced_by: STTS-0001
+  name: Operative tertiary complexity
+  description: Can street race seat model similar sometimes talk remember again leave
+    toward current include herself
+processes:
+- id: BSC-0001
+  category: BankSpinalCord
+  inputs:
+  - CRB-0001
+  - SCB-0001
+  protocol: WD-0005
+  name: Advanced global strategy
+- id: BCSF-0001
+  category: BankCSF
+  frozen_csf:
+  - CSF-0001
+  pellet: CSFP-0001
+  inputs:
+  - CRB-0001
+  - CSFP-0001
+  - PTT-0001
+  protocol: WD-0001
+  performed_on: '2023-04-23'
+  name: Cloned directional capacity
+  description: Serve large technology song than leave he
+- id: BD-0001
+  category: BankDura
+  fixed_dura:
+  - DR-0001
+  frozen_dura:
+  - DR-0001
+  media_dura:
+  - DR-0001
+  inputs:
+  - CRB-0001
+  - BRN-0001
+  - SCB-0001
+  protocol: WD-0003
+  name: Networked human-resource approach
+  description: Dream role free walk loss cell three own bank
+- id: STTS-0001
+  category: SliceTissueToSlide
+  outputs:
+  - SCB-0001
+  protocol: WD-0001
+  performed_on: '2020-07-24'
+  name: Ameliorated 5thgeneration policy
+- id: BV-0001
+  category: BankVessels
+  inputs:
+  - CSFP-0001
+  - PTT-0001
+  - SCB-0001
+  outputs:
+  - SCB-0001
+  protocol: WD-0003
+  name: Synergized transitional process improvement
+  description: When hold family second whatever work business team yet
+- id: DFB-0001
+  category: DissectFrozenBrain
+  new_samples:
+  - PTT-0001
+  inputs:
+  - PTT-0001
+  - CRB-0001
+  protocol: WD-0001
+  name: Balanced mobile extranet
+containers:
+- id: CNT-0001
+  category: Container
+  name: Extended discrete array
+- id: CNT-0002
+  category: Container
+  parent: CNT-0005
+  name: Operative motivating function
+- id: CNT-0003
+  category: Container
+  type: Refrigerator
+  location: LCT-0001
+  name: Operative asymmetric attitude
+- id: CNT-0004
+  category: Container
+  type: Box
+  parent: CNT-0004
+  name: Assimilated modular Graphic Interface
+- id: CNT-0005
+  category: Container
+  type: Falcon Tube
+  location: LCT-0006
+  parent: CNT-0003
+  name: Enhanced 24/7 emulation
+- id: CNT-0006
+  category: Container
+  type: Cryovial
+  location: LCT-0002
+  name: Upgradable bottom-line synergy
+  description: Ready usually do center law live religious election agreement decade
+    friend which
+locations:
+- id: LCT-0001
+  category: Location
+  location_type: Room
+  name: Enterprise-wide optimizing artificial intelligence
+  description: Film heavy chair by development meet door contain head production technology
+    over hour reduce car federal
+- id: LCT-0002
+  category: Location
+  location_type: Site
+  name: Innovative scalable help-desk
+  description: Plan PM more heavy across while top kid he weight before control board
+- id: LCT-0003
+  category: Location
+  location_type: Room
+  name: Total local initiative
+  description: It easy law view central leg PM low data ability recognize peace account
+- id: LCT-0004
+  category: Location
+  location_type: Room
+  parent_location: LCT-0005
+  name: Distributed interactive strategy
+- id: LCT-0005
+  category: Location
+  location_type: Building
+  name: Focused needs-based task-force
+- id: LCT-0006
+  category: Location
+  parent_location: LCT-0003
+  name: Synchronized 6thgeneration ability
+  description: Three report know second government the pull cultural be audience energy
+    move brother teacher three
+cohorts:
+- id: CHR-0001
+  category: Cohort
+  name: Virtual cohesive architecture
+- id: CHR-0002
+  category: Cohort
+  name: Implemented executive model
+  description: Phone most improve play idea sing small factor head pick church recent
+    high opportunity cause
+- id: CHR-0003
+  category: Cohort
+  name: Synchronized exuding help-desk
+- id: CHR-0004
+  category: Cohort
+  name: User-friendly intangible data-warehouse
+- id: CHR-0005
+  category: Cohort
+  name: Team-oriented motivating functionalities
+- id: CHR-0006
+  category: Cohort
+  name: Centralized leadingedge framework
+  description: Appear perform agent likely thousand act money at term rather score
+    protect according American
+anatomical_structures:
+- id: AS-0001
+  category: AnatomicalStructure
+  name: Total explicit superstructure
+- id: AS-0002
+  category: AnatomicalStructure
+  ontology_term: UBERON:9431675
+  fma_xref:
+  - https://stewart.com/tagsterms.html
+  - https://willis.biz/category/wp-contentmain.jsp
+  - http://www.bishop.com/main/wp-content/appabout.html
+  name: Profound web-enabled forecast
+- id: AS-0003
+  category: AnatomicalStructure
+  fma_xref:
+  - https://williams.com/search/taghomepage.htm
+  part_of: AS-0006
+  name: Adaptive client-driven architecture
+- id: AS-0004
+  category: AnatomicalStructure
+  part_of: AS-0002
+  name: Persevering content-based Graphical User Interface
+- id: AS-0005
+  category: AnatomicalStructure
+  fma_xref:
+  - https://clark.com/search/categoriesmain.php
+  - http://www.scott-cooper.com/blog/blogpost.asp
+  - http://stevens-wilson.com/app/tag/blogindex.php
+  part_of: AS-0002
+  name: Open-source didactic intranet
+- id: AS-0006
+  category: AnatomicalStructure
+  name: Object-based 6thgeneration contingency
+  description: Campaign that various floor itself news experience must cut father
+datasets:
+- id: ID-0001
+  category: ImageDataset
+  image_format: DICOM
+  stain: GFAP
+  magnification: 16.195
+  dataset_id: NS-1263
+  files:
+  - FL-0001
+  - FL-0004
+  - FL-0006
+  file_sets:
+  - FS-0002
+  - FS-0006
+  produced_by: MAA-0001
+  name: Face-to-face user-facing encoding
+  description: Push do pick expert commercial special network foreign one agent candidate
+- id: RNAS-0001
+  category: RNASeqDataset
+  quantification: TPM
+  gene_model: Career deal
+  n_reads: 785
+  dataset_id: WY-3323
+  assay_type: OBI:9271908
+  files:
+  - FL-0001
+  - FL-0002
+  - FL-0005
+  produced_by: BSC-0001
+  name: User-centric mission-critical moratorium
+- id: ID-0002
+  category: ImageDataset
+  stain: GFAP
+  magnification: 841.518
+  dataset_id: UU-6030
+  data_location: https://www.ryan.com/category/mainindex.php
+  files:
+  - FL-0001
+  file_sets:
+  - FS-0002
+  produced_by: RNAS-0001
+  name: Cloned analyzing hardware
+- id: ID-0003
+  category: ImageDataset
+  image_format: OME-TIFF
+  stain: NeuN
+  magnification: 664.336
+  dataset_id: QI-6606
+  assay_type: OBI:7091662
+  data_location: http://www.bautista.net/tagmain.html
+  files:
+  - FL-0004
+  produced_by: BV-0001
+  name: Triple-buffered coherent pricing structure
+- id: ATAC-0001
+  category: ATACSeqDataset
+  peak_caller: Agree usually already
+  n_peaks: 299
+  n_reads: 519
+  dataset_id: RZ-5265
+  assay_type: OBI:6048487
+  produced_by: ASS-0002
+  name: Persevering hybrid success
+  description: Many again science alone quite old simply face rather debate more future
+- id: ID-0004
+  category: ImageDataset
+  magnification: 337.963
+  dataset_id: VV-8522
+  files:
+  - FL-0003
+  file_sets:
+  - FS-0003
+  - FS-0004
+  produced_by: ANL-0004
+  name: Adaptive zero tolerance circuit
+assays:
+- id: ATAC-0001
+  category: ATACSeqAssay
+  platform: Oxford Nanopore
+  assay_type: OBI:4931864
+  protocol: WD-0002
+  performed_on: '2017-10-15'
+  name: Reduced bifurcated middleware
+- id: RNAS-0001
+  category: RNASeqAssay
+  platform: BGI
+  paired_end: true
+  assay_type: OBI:4488855
+  inputs:
+  - DR-0001
+  - CSF-0001
+  - PTT-0001
+  protocol: WD-0001
+  name: Open-source scalable pricing structure
+- id: MAA-0001
+  category: MethylationArrayAssay
+  inputs:
+  - CSFP-0001
+  - CRB-0001
+  protocol: WD-0004
+  performed_on: '2019-09-15'
+  name: Re-engineered disintermediate focus group
+  description: Back large season last meeting southern relate when clearly type up
+    play wait
+- id: ASS-0001
+  category: Assay
+  assay_type: OBI:5951407
+  inputs:
+  - CSFP-0001
+  - PTT-0001
+  protocol: WD-0006
+  name: Networked tangible alliance
+- id: ASS-0002
+  category: Assay
+  assay_type: OBI:9294506
+  inputs:
+  - CSF-0001
+  - BRN-0001
+  protocol: WD-0003
+  performed_on: '2006-05-22'
+  name: Universal bifurcated secured line
+- id: GA-0001
+  category: GenotypingAssay
+  array_platform: Illumina Infinium EPIC
+  assay_type: OBI:2462926
+  protocol: WD-0002
+  performed_on: '2007-09-06'
+  name: Polarized tertiary project
+files:
+- id: FL-0001
+  category: File
+  uri: http://www.hess.com/blog/blog/categorysearch.php
+  file_format: VCF
+  media_type: Site military
+  size_bytes: 12499340957
+  checksum_algorithm: md5
+  name: Automated responsive paradigm
+  description: Almost serious stand author possible lead draw learn city four pretty
+    live new myself star
+- id: FL-0002
+  category: File
+  uri: https://www.hayes.com/maincategory.php
+  file_format: Other
+  media_type: Affect though
+  size_bytes: 44728086285
+  checksum: Someone treatment
+  name: Universal composite help-desk
+- id: FL-0003
+  category: File
+  uri: http://collins.com/tagshomepage.htm
+  file_format: MTX
+  media_type: Ask benefit ago
+  size_bytes: 40389855893
+  name: Inverse logistical utilization
+- id: FL-0004
+  category: File
+  uri: https://johnson-black.com/applogin.php
+  file_format: BAM
+  media_type: Class
+  checksum_algorithm: md5
+  name: Adaptive homogeneous Graphical User Interface
+  description: Receive civil single city quite wall various foreign agency when personal
+    huge difficult player forget
+- id: FL-0005
+  category: File
+  uri: http://walter-taylor.org/wp-contentcategory.jsp
+  media_type: Accept hope soon yourself
+  size_bytes: 25015256681
+  checksum: Anyone
+  name: Customizable object-oriented pricing structure
+  description: Purpose here ago job trial four easy case member
+- id: FL-0006
+  category: File
+  uri: https://www.reynolds.com/categoriesfaq.php
+  file_format: SAM
+  size_bytes: 27837469189
+  checksum_algorithm: sha1
+  name: Grass-roots multi-tasking hub
+file_sets:
+- id: FS-0001
+  category: FileSet
+  files:
+  - FL-0002
+  - FL-0003
+  - FL-0001
+  - FL-0005
+  role: log
+  name: Self-enabling bi-directional monitoring
+- id: FS-0002
+  category: FileSet
+  files:
+  - FL-0002
+  name: Assimilated zero administration instruction set
+- id: FS-0003
+  category: FileSet
+  files:
+  - FL-0004
+  - FL-0001
+  - FL-0006
+  name: Diverse composite Graphical User Interface
+- id: FS-0004
+  category: FileSet
+  files:
+  - FL-0005
+  - FL-0003
+  name: Customizable holistic hardware
+  description: She picture send cultural whatever computer on fast play fact issue
+    radio
+- id: FS-0005
+  category: FileSet
+  files:
+  - FL-0004
+  - FL-0006
+  - FL-0002
+  role: index
+  name: Customizable reciprocal help-desk
+  description: Office less politics religious back international risk catch check
+    clearly ahead career manage
+- id: FS-0006
+  category: FileSet
+  files:
+  - FL-0006
+  - FL-0003
+  role: log
+  name: Visionary empowering complexity
+workflow_definitions:
+- id: WD-0001
+  category: WorkflowDefinition
+  engine: bash
+  document_location: http://manning.biz/
+  version: 5.12.7
+  name: Profound fault-tolerant installation
+- id: WD-0002
+  category: WorkflowDefinition
+  engine: nextflow
+  document_location: http://www.silva.net/
+  version: 1.20.3
+  name: Right-sized secondary portal
+- id: WD-0003
+  category: WorkflowDefinition
+  engine: nextflow
+  container_image: Collection be along break
+  document_location: https://rodriguez-chavez.org/
+  version: 4.15.3
+  name: Diverse next generation neural-net
+- id: WD-0004
+  category: WorkflowDefinition
+  engine: nextflow
+  document_location: http://www.atkinson.org/
+  version: 3.14.6
+  name: Fundamental 3rdgeneration parallelism
+  description: Commercial kid approach heart sort popular if do them although per
+    environmental medical
+- id: WD-0005
+  category: WorkflowDefinition
+  engine: bash
+  document_location: https://hall.com/
+  version: 4.19.2
+  name: Persevering asymmetric architecture
+- id: WD-0006
+  category: WorkflowDefinition
+  engine: bash
+  document_location: http://hall-rodriguez.com/
+  version: 5.3.2
+  name: Switchable analyzing secured line
+  description: Cup almost identify record own research blood list girl sister their
+    rate drop marriage worker
+analyses:
+- id: WR-0001
+  category: WorkflowRun
+  engine_version: 0.15.5
+  output_datasets:
+  - ID-0001
+  - ID-0003
+  started_at: '2020-07-28T07:51:59.365455+00:00'
+  ended_at: '2023-04-22T22:03:35.934459+00:00'
+  status: failed
+  parent_analysis: ANL-0003
+  protocol: WD-0003
+  performed_on: '2007-08-03'
+  name: Vision-oriented bottom-line initiative
+- id: WR-0002
+  category: WorkflowRun
+  input_datasets:
+  - ATAC-0001
+  - ID-0003
+  - ID-0004
+  output_datasets:
+  - ATAC-0001
+  - ID-0003
+  - ID-0001
+  - ID-0004
+  started_at: '2019-01-30T07:18:08.397055+00:00'
+  parent_analysis: ANL-0002
+  protocol: WD-0001
+  name: Networked maximized migration
+- id: ANL-0001
+  category: Analysis
+  started_at: '2020-10-17T13:56:09.663700+00:00'
+  ended_at: '2019-08-18T16:04:41.772660+00:00'
+  status: completed
+  compute_environment: Hour wear star
+  parent_analysis: ANL-0001
+  protocol: WD-0001
+  performed_on: '2010-04-09'
+  name: Up-sized fresh-thinking conglomeration
+  description: Agreement well account movement can start paper tree bank letter summer
+    minute
+- id: ANL-0002
+  category: Analysis
+  output_datasets:
+  - ID-0002
+  started_at: '2023-08-26T16:01:35.318163+00:00'
+  ended_at: '2020-09-01T11:04:22.201697+00:00'
+  parent_analysis: WR-0001
+  protocol: WD-0003
+  name: Synergistic logistical project
+  description: Begin war resource evening realize per probably her of process cut
+    meet build black treat
+- id: ANL-0003
+  category: Analysis
+  input_datasets:
+  - ID-0004
+  - ID-0002
+  - RNAS-0001
+  output_datasets:
+  - ID-0003
+  - ID-0004
+  - ID-0001
+  - RNAS-0001
+  parameters:
+  - id: PRM-0001
+    category: Parameter
+    value: Simple improve language
+    name: Adaptive neutral initiative
+  - id: PRM-0002
+    category: Parameter
+    value: Education little
+    name: Focused leadingedge forecast
+  started_at: '2024-07-09T20:39:16.709809+00:00'
+  ended_at: '2023-10-27T12:25:57.630789+00:00'
+  compute_environment: Piece but arrive
+  parent_analysis: ANL-0003
+  protocol: WD-0002
+  name: Persistent human-resource service-desk
+  description: Court hospital skin soon which thought radio minute rich consumer type
+    Republican organization its
+- id: ANL-0004
+  category: Analysis
+  ended_at: '2021-02-02T03:58:31.898303+00:00'
+  status: running
+  parent_analysis: ANL-0001
+  protocol: WD-0002
+  performed_on: '2018-06-26'
+  name: Face-to-face stable software
+  description: International position write those full rate clear newspaper ground
+    just keep production suffer life chair
+assessments:
+- id: MSR-0001
+  category: Measurement
+  measure_name: ENUM_WHW
+  value_numeric: 973.778
+  person: DNR-0003
+  method: Because include
+  name: Open-source needs-based database
+- id: MSR-0002
+  category: Measurement
+  measure_name: ENUM_QIH
+  value_text: Name at painting room sell daughter pay growth base age speak pass
+  asserted_on: '2014-04-25'
+  name: Customizable optimizing knowledge user
+  description: Him second until direction opportunity very analysis firm once machine
+- id: DGN-0001
+  category: Diagnosis
+  disease: MONDO:8765601
+  person: DNR-0006
+  method: Those budget
+  asserted_on: '2005-08-21'
+  name: Future-proofed empowering info-mediaries
+  description: Health sort couple station my full need claim many against television
+- id: DGN-0002
+  category: Diagnosis
+  disease: MONDO:5251986
+  method: Minute technology
+  name: Pre-emptive 5thgeneration model
+- id: MSR-0003
+  category: Measurement
+  measure_name: ENUM_OWG
+  asserted_on: '2017-03-05'
+  name: User-friendly leadingedge hardware
+  description: Wind natural customer letter finish campaign night simply a produce
+    foreign the
+- id: MSR-0004
+  category: Measurement
+  measure_name: ENUM_YUC
+  value_numeric: 299.1
+  value_text: Without mention get last increase mother important ball woman you company
+  person: DNR-0004
+  method: Thing
+  asserted_on: '2021-11-29'
+  name: Compatible stable functionalities
