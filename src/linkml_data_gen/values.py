@@ -76,22 +76,56 @@ class ValueFactory:
     def __init__(self, faker: Faker, seed: Optional[int] = None):
         self.fake = faker
         self._id_counters: dict[str, int] = {}
+        # class name -> its assigned abbreviation, and the reverse-index used
+        # to detect collisions when two class names would otherwise share one.
+        self._abbrev_registry: dict[str, str] = {}
+        self._used_abbrevs: set[str] = set()
         # rstr.xeger() otherwise draws from the global RNG, which would make
         # pattern-based values (and thus whole runs) non-reproducible.
         self._rstr = rstr.Rstr(random.Random(seed))
 
     # ----- identifiers -------------------------------------------------------
     @staticmethod
-    def _abbrev(class_name: str) -> str:
-        """A short uppercase prefix for human-readable ids (Donor -> DNR)."""
+    def _abbrev_chars(class_name: str) -> list[str]:
+        """Ordered letters to build a class's abbreviation from, longest-prefix-first."""
         letters = [c for c in class_name if c.isalpha()]
         caps = [c for c in class_name if c.isupper()]
         if len(caps) >= 2:
-            stub = "".join(caps[:4])
-        else:
-            consonants = [c for c in letters[1:] if c.lower() not in "aeiou"]
-            stub = (letters[0] + "".join(consonants))[:3] if letters else "X"
-        return stub.upper()
+            return caps
+        consonants = [c for c in letters[1:] if c.lower() not in "aeiou"]
+        return list(letters[0] + "".join(consonants)) if letters else ["X"]
+
+    def _abbrev(self, class_name: str) -> str:
+        """A short uppercase prefix for human-readable ids (Donor -> DNR).
+
+        Unique across the whole run: two class names that would naively
+        share a prefix (e.g. both truncating to ``ATAC``) get progressively
+        more of their name folded in until they differ, with a numeric
+        suffix as a last resort. Without this, ids minted for different
+        classes could collide despite each being "unique" within its own
+        class's counter.
+        """
+        if class_name in self._abbrev_registry:
+            return self._abbrev_registry[class_name]
+
+        chars = self._abbrev_chars(class_name)
+        start = min(4, len(chars))
+        stub = None
+        for length in range(start, len(chars) + 1):
+            candidate = "".join(chars[:length]).upper()
+            if candidate not in self._used_abbrevs:
+                stub = candidate
+                break
+        if stub is None:
+            base = "".join(chars).upper() or "X"
+            stub, n = base, 2
+            while stub in self._used_abbrevs:
+                stub = f"{base}{n}"
+                n += 1
+
+        self._abbrev_registry[class_name] = stub
+        self._used_abbrevs.add(stub)
+        return stub
 
     def mint_id(self, class_name: str) -> str:
         """Mint a unique, readable identifier such as ``DNR-0007``."""
