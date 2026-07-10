@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `mint_id` no longer mints colliding ids for different classes whose names
+  share their first 4 capital letters (e.g. `ATACSeqAssay` / `ATACSeqDataset`).
+  Class abbreviations are now assigned once and registered globally, growing
+  to include more of the class name (and falling back to a numeric suffix)
+  whenever a collision would otherwise occur. (#1)
+
 ## [0.1.0] - 2026-06-26
 
 Initial release.
