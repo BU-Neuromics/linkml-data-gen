@@ -107,6 +107,8 @@ class DataGenerator:
         self._home_slot = {}
         self._used_ids = set()
         self.values._id_counters = {}
+        self.values._abbrev_registry = {}
+        self.values._used_abbrevs = set()
 
     def _generate_container(self, rc: str) -> dict:
         self._container_mode = True
