@@ -170,7 +170,18 @@ class DataGenerator:
             else:
                 v = f"{v}{len(self._used_ids)}"
         else:
-            v = self.values.mint_id(cls)
+            # Identifiers must be unique across the WHOLE dataset, not just
+            # within a class: sibling classes can share an id abbreviation
+            # (e.g. ATACSeqDataset and ATACSeqAssay both abbreviate to "ATAC"),
+            # and per-class counters would then mint the same "ATAC-0001"
+            # twice. mint_id increments the class counter each call, so
+            # re-minting makes progress until the value is globally free.
+            for _ in range(1000):
+                v = self.values.mint_id(cls)
+                if v not in self._used_ids:
+                    break
+            else:
+                v = f"{v}-{len(self._used_ids)}"
         self._used_ids.add(v)
         return v
 
