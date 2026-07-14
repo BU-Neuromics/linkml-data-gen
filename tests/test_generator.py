@@ -111,6 +111,57 @@ def test_unique_identifiers():
     assert len(ids) == len(set(ids)), "duplicate identifiers"
 
 
+# Sibling classes whose names share a capital-letter signature abbreviate to
+# the same id prefix (here both "AB"). Ids must still be globally unique — a
+# consumer with one id namespace (e.g. a store with a shared entity registry)
+# rejects the dataset otherwise. Regression for the pattern-less mint path,
+# which previously trusted per-class counters and collided across classes.
+_COLLIDING_ABBREV_SCHEMA = """
+id: https://example.org/collide
+name: collide
+prefixes:
+  linkml: https://w3id.org/linkml/
+default_prefix: collide
+default_range: string
+imports:
+  - linkml:types
+classes:
+  Container:
+    tree_root: true
+    attributes:
+      alpha_betas:
+        range: AlphaBeta
+        multivalued: true
+        inlined_as_list: true
+      alpha_bravos:
+        range: AlphaBravo
+        multivalued: true
+        inlined_as_list: true
+  AlphaBeta:
+    attributes:
+      id:
+        identifier: true
+      name: {}
+  AlphaBravo:
+    attributes:
+      id:
+        identifier: true
+      name: {}
+"""
+
+
+def test_identifiers_unique_across_classes_with_shared_abbrev(tmp_path):
+    schema = tmp_path / "collide.yaml"
+    schema.write_text(_COLLIDING_ABBREV_SCHEMA)
+    data = DataGenerator(
+        str(schema), GenerationConfig(seed=0, default_count=25)
+    ).generate()
+    ids = [e["id"] for e in data["alpha_betas"]] + [
+        e["id"] for e in data["alpha_bravos"]
+    ]
+    assert len(ids) == len(set(ids)), "id collision across classes sharing an abbrev"
+
+
 def test_count_overrides():
     cfg = GenerationConfig(seed=0, count_overrides={"widgets": 12, "teams": 3})
     data = DataGenerator(str(EDGE), cfg).generate()
