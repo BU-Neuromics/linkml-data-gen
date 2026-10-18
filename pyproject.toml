@@ -9,7 +9,7 @@ description = "Generate realistic, stochastic, schema-valid test data from any L
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "BU Neuromics" }]
+authors = [{ name = "Adam Labadorf" }]
 keywords = ["linkml", "test-data", "synthetic-data", "fixtures", "schema"]
 classifiers = [
     "Development Status :: 4 - Beta",

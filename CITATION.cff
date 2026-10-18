@@ -4,7 +4,8 @@ message: >-
   If you use this software, please cite it using the metadata from this file.
 type: software
 authors:
-  - name: "BU Neuromics"
+  - given-names: Adam
+    family-names: Labadorf
 repository-code: "https://github.com/BU-Neuromics/linkml-data-gen"
 abstract: >-
   Generate realistic, stochastic, schema-valid test data from any LinkML schema.
