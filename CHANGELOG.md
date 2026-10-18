@@ -50,5 +50,5 @@ Initial release.
 - **Tests**: validation-backed suite over a synthetic edge-case schema, a
   two-module schema, and (when present) the real brainbank schema.
 
-[Unreleased]: https://github.com/BU-Neuromics/linkml-data-gen/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/BU-Neuromics/linkml-data-gen/releases/tag/v0.1.0
+[Unreleased]: https://github.com/datahelix-platform/linkml-data-gen/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/datahelix-platform/linkml-data-gen/releases/tag/v0.1.0

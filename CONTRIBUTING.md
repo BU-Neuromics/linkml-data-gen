@@ -23,7 +23,7 @@ immediately.
 Python ≥ 3.9. Use a virtual environment:
 
 ```bash
-git clone https://github.com/BU-Neuromics/linkml-data-gen
+git clone https://github.com/datahelix-platform/linkml-data-gen
 cd linkml-data-gen
 python -m venv .venv
 .venv/bin/pip install -e ".[test]"
