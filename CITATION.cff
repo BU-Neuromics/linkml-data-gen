@@ -6,7 +6,7 @@ type: software
 authors:
   - given-names: Adam
     family-names: Labadorf
-repository-code: "https://github.com/BU-Neuromics/linkml-data-gen"
+repository-code: "https://github.com/datahelix-platform/linkml-data-gen"
 abstract: >-
   Generate realistic, stochastic, schema-valid test data from any LinkML schema.
   Driven by linkml-runtime's SchemaView, it produces connected, referentially

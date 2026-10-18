@@ -16,7 +16,7 @@ Please **do not** open a public issue for security problems.
 
 Report vulnerabilities privately by either:
 
-- using GitHub's **["Report a vulnerability"](https://github.com/BU-Neuromics/linkml-data-gen/security/advisories/new)**
+- using GitHub's **["Report a vulnerability"](https://github.com/datahelix-platform/linkml-data-gen/security/advisories/new)**
   (Security → Advisories), or
 - emailing **labadorf@bu.edu** with the details.
 
