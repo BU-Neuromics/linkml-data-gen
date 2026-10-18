@@ -244,7 +244,11 @@ and the PR process, and note our [Code of Conduct](CODE_OF_CONDUCT.md). Use the 
 [report a bug or request a feature](.github/ISSUE_TEMPLATE). Security issues: see
 [SECURITY.md](SECURITY.md).
 
+## Acknowledgments
+
+linkml-data-gen is developed by Adam Labadorf with the National Center for PTSD Brain Bank, U.S. Department of Veterans Affairs.
+
 ## License
 
-[MIT](LICENSE) © BU Neuromics. If you use this in published work, citation metadata is in
+[MIT](LICENSE) © Adam Labadorf. If you use this in published work, citation metadata is in
 [CITATION.cff](CITATION.cff). Release notes live in [CHANGELOG.md](CHANGELOG.md).
